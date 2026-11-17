@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>테슬라 연동</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: system-ui, sans-serif;
+      background: #f6f7f8;
+      color: #111;
+    }
+    main {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .box {
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 8rem;
+      margin: 0;
+      padding: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fff;
+      font-family: ui-monospace, monospace;
+      font-size: 1.25rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-all;
+      user-select: all;
+    }
+    .error {
+      color: #9b1c1c;
+      background: #fff5f5;
+      border-color: #e5b4b4;
+    }
+    button {
+      margin-top: 12px;
+      padding: 10px 18px;
+      border: 1px solid #222;
+      border-radius: 8px;
+      background: #111;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .hint {
+      line-height: 1.5;
+    }
+    .meta {
+      color: #555;
+      font-size: 0.875rem;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>테슬라 연동</h1>
+    <div id="content"></div>
+  </main>
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var code = params.get("code");
+      var state = params.get("state");
+      var error = params.get("error");
+      var content = document.getElementById("content");
+
+      function selectText(el) {
+        var range = document.createRange();
+        range.selectNodeContents(el);
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+
+      if (error) {
+        content.innerHTML = '<div class="box error" id="value"></div>';
+        document.getElementById("value").textContent = error;
+        return;
+      }
+
+      content.innerHTML =
+        '<p class="hint">이 코드를 테슬라연동 봇에게 붙여넣어 주세요</p>' +
+        '<div class="box" id="value"></div>' +
+        '<button type="button" id="copy">복사</button>' +
+        '<p class="meta" id="state-line"></p>';
+
+      var valueEl = document.getElementById("value");
+      valueEl.textContent = code || "";
+      if (state) {
+        document.getElementById("state-line").textContent = "state: " + state;
+      }
+
+      document.getElementById("copy").addEventListener("click", function () {
+        var text = valueEl.textContent || "";
+        var button = document.getElementById("copy");
+        function markCopied() {
+          button.textContent = "복사됨";
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(markCopied).catch(function () {
+            selectText(valueEl);
+          });
+          return;
+        }
+        selectText(valueEl);
+      });
+    })();
+  </script>
+</body>
+</html>
